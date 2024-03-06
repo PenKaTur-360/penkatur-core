@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # Maintain dependencies for Maven
+  - package-ecosystem: "maven"
+    directory: "/PenKaTurCore"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    target-branch: "develop"
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/.github"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    target-branch: "develop"
