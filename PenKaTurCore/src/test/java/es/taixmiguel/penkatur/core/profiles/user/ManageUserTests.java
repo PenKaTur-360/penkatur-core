@@ -138,13 +138,13 @@ class ManageUserTests {
 	}
 
 	void checkSimpleUser(User user) {
-		assertNotNull(user);
+		assertNotNull(user, "");
 		assertNotNull(user.getId());
 		assertTrue(user.getId() > 0);
 		assertEquals(EMAIL, user.getEmail());
 		assertEquals(FIRST_NAME, user.getFirstName());
 		assertEquals(LAST_NAME, user.getLastName());
-		assertNull(user.getSecondLastName());
+		assertEquals("", user.getSecondLastName());
 		assertNull(user.getAvatar());
 		assertNotNull(user.getCreationDate());
 	}
