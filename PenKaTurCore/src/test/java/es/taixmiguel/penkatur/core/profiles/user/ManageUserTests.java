@@ -36,6 +36,7 @@ class ManageUserTests {
 
 	@AfterEach
 	void deleteUsers() {
+		Log.trace(getClass(), "Running user cleanup");
 		userService.findUser(EMAIL).ifPresent(u -> userService.deleteUser(u));
 		userService.findUser(EMAIL2).ifPresent(u -> userService.deleteUser(u));
 	}
