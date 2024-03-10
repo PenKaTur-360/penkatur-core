@@ -85,6 +85,8 @@ class ManageUserTests {
 			fail();
 		} catch (DuplicatedUserException e) {
 			assertTrue(true);
+		} catch (Throwable t) {
+			fail(t.getMessage());
 		}
 	}
 
@@ -98,6 +100,8 @@ class ManageUserTests {
 			fail();
 		} catch (DuplicatedUserException e) {
 			assertTrue(true);
+		} catch (Throwable t) {
+			fail(t.getMessage());
 		}
 	}
 
