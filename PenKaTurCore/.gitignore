@@ -1,5 +1,6 @@
 HELP.md
 target/
+.bbdd
 .logs
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
