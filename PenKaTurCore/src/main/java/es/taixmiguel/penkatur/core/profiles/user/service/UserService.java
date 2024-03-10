@@ -23,7 +23,7 @@ public class UserService {
 			Log.trace(getClass(),
 					String.format("A user with the email %s has been created successfully.", user.getEmail()));
 			return user;
-		} catch (ConstraintViolationException | DataIntegrityViolationException e) {
+		} catch (ConstraintViolationException | DataIntegrityViolationException | Exception e) {
 			Log.trace(getClass(), String.format("User with email %s already exists in the system.", user.getEmail()));
 			throw new DuplicatedUserException();
 		}
