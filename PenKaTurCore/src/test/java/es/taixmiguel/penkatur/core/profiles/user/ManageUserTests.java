@@ -15,6 +15,7 @@ import es.taixmiguel.penkatur.core.PenKaTurCoreApplication;
 import es.taixmiguel.penkatur.core.exceptions.DuplicatedUserException;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
 import es.taixmiguel.penkatur.core.profiles.user.service.UserService;
+import es.taixmiguel.penkatur.core.tools.log.Log;
 
 @SpringBootTest(classes = PenKaTurCoreApplication.class)
 class ManageUserTests {
@@ -41,6 +42,7 @@ class ManageUserTests {
 
 	@Test
 	void createSimpleUser1() throws DuplicatedUserException {
+		Log.trace(getClass(), "Running test createSimpleUser1()");
 		User user = getInstanceSimpleUser();
 		user = userService.createUser(user);
 		checkSimpleUser(user);
@@ -48,6 +50,7 @@ class ManageUserTests {
 
 	@Test
 	void createSimpleUser2() throws DuplicatedUserException {
+		Log.trace(getClass(), "Running test createSimpleUser2()");
 		User user = new User(EMAIL, "-", "-");
 		user.setCompleteName(FIRST_NAME, LAST_NAME);
 		user = userService.createUser(user);
@@ -56,6 +59,7 @@ class ManageUserTests {
 
 	@Test
 	void createCompleteUser1() throws DuplicatedUserException {
+		Log.trace(getClass(), "Running test createCompleteUser1()");
 		User user = getInstanceCompleteUser();
 		user.setAvatar(AVATAR);
 		user = userService.createUser(user);
@@ -64,6 +68,7 @@ class ManageUserTests {
 
 	@Test
 	void createCompleteUser2() throws DuplicatedUserException {
+		Log.trace(getClass(), "Running test createCompleteUser2()");
 		User user = new User(EMAIL, "-", "-");
 		user.setAvatar(AVATAR);
 		user.setCompleteName(FIRST_NAME, LAST_NAME, SECOND_LAST_NAME);
@@ -73,6 +78,7 @@ class ManageUserTests {
 
 	@Test
 	void checkUkUser1() throws DuplicatedUserException {
+		Log.trace(getClass(), "Running test checkUkUser1()");
 		userService.createUser(getInstanceSimpleUser());
 		try {
 			userService.createUser(getInstanceCompleteUser());
@@ -84,6 +90,7 @@ class ManageUserTests {
 
 	@Test
 	void checkUkUser2() throws DuplicatedUserException {
+		Log.trace(getClass(), "Running test checkUkUser2()");
 		userService.createUser(getInstanceSimpleUser());
 		userService.createUser(getInstanceSimpleUser2());
 		try {
@@ -96,6 +103,7 @@ class ManageUserTests {
 
 	@Test
 	void findUser() throws DuplicatedUserException {
+		Log.trace(getClass(), "Running test findUser()");
 		User user = userService.createUser(getInstanceSimpleUser2());
 		assertTrue(userService.findUser(user.getId()).isPresent());
 		assertTrue(userService.findUser(user.getEmail()).isPresent());
@@ -103,6 +111,7 @@ class ManageUserTests {
 
 	@Test
 	void updateUser() throws DuplicatedUserException {
+		Log.trace(getClass(), "Running test updateUser()");
 		User user = userService.createUser(getInstanceSimpleUser());
 		checkSimpleUser(user);
 		user.setAvatar(AVATAR);
@@ -115,6 +124,7 @@ class ManageUserTests {
 
 	@Test
 	void deleteUser() throws DuplicatedUserException {
+		Log.trace(getClass(), "Running test deleteUser()");
 		User user = userService.createUser(getInstanceSimpleUser());
 		userService.deleteUser(user);
 
