@@ -2,9 +2,7 @@ package es.taixmiguel.penkatur.core.profiles.user.service;
 
 import java.util.Optional;
 
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import es.taixmiguel.penkatur.core.exceptions.DuplicatedUserException;
@@ -23,7 +21,8 @@ public class UserService {
 			Log.trace(getClass(),
 					String.format("A user with the email %s has been created successfully.", user.getEmail()));
 			return user;
-		} catch (ConstraintViolationException | DataIntegrityViolationException | Exception e) {
+//		} catch (ConstraintViolationException | DataIntegrityViolationException e) {
+		} catch (Exception e) {
 			Log.trace(getClass(), String.format("User with email %s already exists in the system.", user.getEmail()));
 			throw new DuplicatedUserException();
 		}
