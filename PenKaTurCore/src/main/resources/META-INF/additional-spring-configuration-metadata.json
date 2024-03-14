@@ -1,0 +1,34 @@
+{
+	"properties": [
+		{
+			"name": "penkatur.profiles.user.security.monthsPasswordExpiration",
+			"type": "java.lang.Integer",
+			"description": "Determines the number of months after which user passwords expire"
+		},
+		{
+			"name": "penkatur.security.jwt.cookieExpiration",
+			"type": "java.lang.Integer",
+			"description": "Attribute indicating the expiration time for the JWT, specified in seconds"
+		},
+		{
+			"name": "penkatur.security.jwt.cookieName",
+			"type": "java.lang.String",
+			"description": "Represents the name of the cookie where the JWT is stored"
+		},
+		{
+			"name": "penkatur.security.jwt.cookieRefreshExpiration",
+			"type": "java.lang.Integer",
+			"description": "Expiration time of the cookie used for refreshing JWT, in seconds"
+		},
+		{
+			"name": "penkatur.security.jwt.cookieRefreshName",
+			"type": "java.lang.String",
+			"description": "Name of the cookie used for refreshing JWT"
+		},
+		{
+			"name": "penkatur.security.jwt.secret",
+			"type": "java.lang.String",
+			"description": "Attribute indicating the secret key used for JWT encryption and decryption"
+		}
+	]
+}

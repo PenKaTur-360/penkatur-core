@@ -6,15 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import es.taixmiguel.penkatur.core.exceptions.DuplicatedUserException;
+import es.taixmiguel.penkatur.core.profiles.user.exception.DuplicatedUserException;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
 import es.taixmiguel.penkatur.core.profiles.user.repository.UserRepository;
+import es.taixmiguel.penkatur.core.profiles.user.security.UserSecretsService;
 import es.taixmiguel.penkatur.core.tools.log.Log;
 
 @Service
 public class UserService {
 
 	private UserRepository userRepo;
+	private UserSecretsService secretsService;
 
 	public User createUser(User user) throws DuplicatedUserException {
 		try {
@@ -42,6 +44,7 @@ public class UserService {
 	}
 
 	public void deleteUser(User user) {
+		secretsService.deleteSecrets(user);
 		userRepo.delete(user);
 		Log.trace(getClass(),
 				String.format("The user with ID %d has been successfully deleted from the system.", user.getId()));
@@ -50,5 +53,10 @@ public class UserService {
 	@Autowired
 	public void setUserRepo(UserRepository userRepo) {
 		this.userRepo = userRepo;
+	}
+
+	@Autowired
+	public void setUserSecretsRepo(UserSecretsService userSecretsService) {
+		this.secretsService = userSecretsService;
 	}
 }
