@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import es.taixmiguel.penkatur.core.profiles.user.repository.UserRepository;
-import es.taixmiguel.penkatur.core.profiles.user.security.config.UserDetailsImpl;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {

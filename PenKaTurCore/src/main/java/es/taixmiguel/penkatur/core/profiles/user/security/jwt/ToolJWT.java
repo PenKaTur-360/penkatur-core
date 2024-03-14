@@ -8,7 +8,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
-import es.taixmiguel.penkatur.core.profiles.user.security.config.UserDetailsImpl;
+import es.taixmiguel.penkatur.core.profiles.user.model.User;
+import es.taixmiguel.penkatur.core.profiles.user.security.UserDetailsImpl;
 import es.taixmiguel.penkatur.core.tools.log.Log;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -23,27 +24,47 @@ import jakarta.servlet.http.HttpServletRequest;
 @Component
 public class ToolJWT {
 
-	@Value("${penkatur.security.jwt.secret}")
-	private String secret;
-
 	@Value("${penkatur.security.jwt.cookieExpiration}")
 	private int expiration;
 
 	@Value("${penkatur.security.jwt.cookieName}")
 	private String cookieName;
 
-	public String getJwtFromCookies(HttpServletRequest request) {
-		Cookie cookie = WebUtils.getCookie(request, cookieName);
-		return cookie != null ? cookie.getValue() : null;
+	@Value("${penkatur.security.jwt.cookieRefreshName}")
+	private String cookieRefreshName;
+
+	@Value("${penkatur.security.jwt.cookieRefreshExpiration}")
+	private int refreshTokenDurationJWT;
+
+	@Value("${penkatur.security.jwt.secret}")
+	private String secret;
+
+	public ResponseCookie generateJwtCookie(UserDetailsImpl user) {
+		return generateJwtCookie(user.getUsername());
 	}
 
-	public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-		String jwt = generateTokenFromUsername(userPrincipal.getUsername());
-		return ResponseCookie.from(cookieName, jwt).path("/api").maxAge(expiration).httpOnly(true).build();
+	public ResponseCookie generateJwtCookie(User user) {
+		return generateJwtCookie(user.getEmail());
+	}
+
+	public String getJwtFromCookies(HttpServletRequest request) {
+		return getValueCookie(request, cookieName);
 	}
 
 	public ResponseCookie getCleanJwtCookie() {
-		return ResponseCookie.from(cookieName, null).path("/api").build();
+		return generateNullCookie(cookieName, "/api");
+	}
+
+	public ResponseCookie generateRefreshJwtCookie(String token) {
+		return generateCookie(cookieRefreshName, token, "/api/auth/refreshtoken", refreshTokenDurationJWT);
+	}
+
+	public String getJwtRefreshFromCookies(HttpServletRequest request) {
+		return getValueCookie(request, cookieRefreshName);
+	}
+
+	public ResponseCookie getCleanJwtRefreshCookie() {
+		return generateNullCookie(cookieRefreshName, "/api/auth/refreshtoken");
 	}
 
 	public String getEmailFromJwtToken(String token) {
@@ -67,10 +88,28 @@ public class ToolJWT {
 		return false;
 	}
 
-	private String generateTokenFromUsername(String email) {
+	private String generateTokenFromEmail(String email) {
 		return Jwts.builder().setSubject(email).setIssuedAt(new Date())
 				.setExpiration(new Date((new Date()).getTime() + expiration * 1000))
 				.signWith(key(), SignatureAlgorithm.HS256).compact();
+	}
+
+	private ResponseCookie generateJwtCookie(String email) {
+		String jwt = generateTokenFromEmail(email);
+		return generateCookie(cookieName, jwt, "/api", expiration);
+	}
+
+	private ResponseCookie generateCookie(String cookieName, String cookieValue, String path, int expiration) {
+		return ResponseCookie.from(cookieName, cookieValue).path(path).maxAge(expiration).httpOnly(true).build();
+	}
+
+	private ResponseCookie generateNullCookie(String cookie, String path) {
+		return ResponseCookie.from(cookie, null).path(path).build();
+	}
+
+	public String getValueCookie(HttpServletRequest request, String cookieName) {
+		Cookie cookie = WebUtils.getCookie(request, cookieName);
+		return cookie != null ? cookie.getValue() : null;
 	}
 
 	private Key key() {

@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import es.taixmiguel.penkatur.core.PenKaTurCoreApplication;
-import es.taixmiguel.penkatur.core.exceptions.DuplicatedUserException;
+import es.taixmiguel.penkatur.core.profiles.user.exception.DuplicatedUserException;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
 import es.taixmiguel.penkatur.core.profiles.user.service.UserService;
 import es.taixmiguel.penkatur.core.tools.log.Log;

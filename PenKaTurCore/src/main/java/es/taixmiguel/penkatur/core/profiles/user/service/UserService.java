@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import es.taixmiguel.penkatur.core.exceptions.DuplicatedUserException;
+import es.taixmiguel.penkatur.core.profiles.user.exception.DuplicatedUserException;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
 import es.taixmiguel.penkatur.core.profiles.user.repository.UserRepository;
 import es.taixmiguel.penkatur.core.profiles.user.security.UserSecretsService;

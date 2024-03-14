@@ -33,6 +33,7 @@ public class WebSecurityConfig {
 		.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 		.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 		.authorizeHttpRequests(auth -> auth
+				.requestMatchers("/error/**").permitAll()
 				.requestMatchers("/api/auth/**").permitAll()
 				.anyRequest().authenticated()); 
 		// @formatter:on
