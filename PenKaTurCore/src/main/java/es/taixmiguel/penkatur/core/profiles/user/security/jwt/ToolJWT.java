@@ -88,7 +88,7 @@ public class ToolJWT {
 		return false;
 	}
 
-	private String generateTokenFromEmail(String email) {
+	String generateTokenFromEmail(String email) {
 		return Jwts.builder().setSubject(email).setIssuedAt(new Date())
 				.setExpiration(new Date((new Date()).getTime() + expiration * 1000))
 				.signWith(key(), SignatureAlgorithm.HS256).compact();

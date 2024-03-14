@@ -21,8 +21,8 @@ import es.taixmiguel.penkatur.core.tools.log.Log;
 @SpringBootTest(classes = PenKaTurCoreApplication.class)
 class SecurityUserTests {
 
-	public final String PASSWORD1 = "passW0RD";
-	public final String PASSWORD2 = "P4SSword";
+	public static final String PASSWORD1 = "passW0RD";
+	public static final String PASSWORD2 = "P4SSword";
 
 	@Value("${penkatur.profiles.user.security.monthsPasswordExpiration}")
 	private int monthsExpiration;
