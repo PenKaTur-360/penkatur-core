@@ -21,9 +21,6 @@ import es.taixmiguel.penkatur.core.tools.log.Log;
 @SpringBootTest(classes = PenKaTurCoreApplication.class)
 class SecurityUserTests {
 
-	public static final String PASSWORD1 = "passW0RD";
-	public static final String PASSWORD2 = "P4SSword";
-
 	@Value("${penkatur.profiles.user.security.monthsPasswordExpiration}")
 	private int monthsExpiration;
 
@@ -45,48 +42,48 @@ class SecurityUserTests {
 	@Test
 	void createSecrets0() {
 		Log.trace(getClass(), "Running test createSecrets0()");
-		UserSecrets secrets = getInstanceSecrets(PASSWORD1, 0);
-		checkSecrets(secrets, PASSWORD1, 0);
+		UserSecrets secrets = getInstanceSecrets(ToolUser.PASSWORD1, 0);
+		checkSecrets(secrets, ToolUser.PASSWORD1, 0);
 	}
 
 	@Test
 	void changeSecrets0() {
 		Log.trace(getClass(), "Running test changeSecrets0()");
-		UserSecrets secrets = getInstanceSecrets(PASSWORD1, 0);
-		secrets.setPassword(PASSWORD2, 0);
-		checkSecrets(secrets, PASSWORD2, 0);
+		UserSecrets secrets = getInstanceSecrets(ToolUser.PASSWORD1, 0);
+		secrets.setPassword(ToolUser.PASSWORD2, 0);
+		checkSecrets(secrets, ToolUser.PASSWORD2, 0);
 	}
 
 	@Test
 	void createSecrets8() {
 		Log.trace(getClass(), "Running test createSecrets8()");
-		UserSecrets secrets = getInstanceSecrets(PASSWORD1, 8);
-		checkSecrets(secrets, PASSWORD1, 8);
+		UserSecrets secrets = getInstanceSecrets(ToolUser.PASSWORD1, 8);
+		checkSecrets(secrets, ToolUser.PASSWORD1, 8);
 	}
 
 	@Test
 	void changeSecrets11() {
 		Log.trace(getClass(), "Running test changeSecrets11()");
-		UserSecrets secrets = getInstanceSecrets(PASSWORD1, 8);
-		secrets.setPassword(PASSWORD2, 11);
-		checkSecrets(secrets, PASSWORD2, 11);
+		UserSecrets secrets = getInstanceSecrets(ToolUser.PASSWORD1, 8);
+		secrets.setPassword(ToolUser.PASSWORD2, 11);
+		checkSecrets(secrets, ToolUser.PASSWORD2, 11);
 	}
 
 	@Test
 	void saveSecrets() throws DuplicatedUserException {
 		Log.trace(getClass(), "Running test saveSecrets()");
 		User user = getCreatedUser();
-		UserSecrets secrets = secretsService.createSecrets(user, PASSWORD1);
-		checkSecrets(secrets, PASSWORD1, monthsExpiration);
+		UserSecrets secrets = secretsService.createSecrets(user, ToolUser.PASSWORD1);
+		checkSecrets(secrets, ToolUser.PASSWORD1, monthsExpiration);
 	}
 
 	@Test
 	void updateSecrets() throws DuplicatedUserException {
 		Log.trace(getClass(), "Running test updateSecrets()");
 		User user = getCreatedUser();
-		UserSecrets secrets = secretsService.createSecrets(user, PASSWORD1);
-		secretsService.updatePassword(secrets, PASSWORD2);
-		checkSecrets(secrets, PASSWORD2, monthsExpiration);
+		UserSecrets secrets = secretsService.createSecrets(user, ToolUser.PASSWORD1);
+		secretsService.updatePassword(secrets, ToolUser.PASSWORD2);
+		checkSecrets(secrets, ToolUser.PASSWORD2, monthsExpiration);
 	}
 
 	private User getCreatedUser() throws DuplicatedUserException {

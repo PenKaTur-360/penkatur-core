@@ -1,7 +1,7 @@
 package es.taixmiguel.penkatur.core.profiles.user.security;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +35,11 @@ class AuthenticationUserTest {
 	@Test
 	void authenticateUser() {
 		User user = userService.createUser(ToolUser.getInstanceSimpleUser());
-		secretsService.createSecrets(user, encoder.encode(SecurityUserTests.PASSWORD1));
+		secretsService.createSecrets(user, encoder.encode(ToolUser.PASSWORD1));
 
 		try {
-			authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(user.getEmail(), SecurityUserTests.PASSWORD1));
+			authenticationManager
+					.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), ToolUser.PASSWORD1));
 			assertTrue(true);
 		} catch (Exception e) {
 			fail("The user can't be authenticate");

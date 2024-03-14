@@ -1,7 +1,8 @@
 package es.taixmiguel.penkatur.core.profiles.user.security.jwt;
 
-import java.security.Key;
 import java.util.Date;
+
+import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
@@ -14,7 +15,6 @@ import es.taixmiguel.penkatur.core.tools.log.Log;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -68,12 +68,12 @@ public class ToolJWT {
 	}
 
 	public String getEmailFromJwtToken(String token) {
-		return Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(token).getBody().getSubject();
+		return Jwts.parser().verifyWith(key()).build().parseSignedClaims(token).getPayload().getSubject();
 	}
 
 	public boolean validateJwtToken(String authToken) {
 		try {
-			Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
+			Jwts.parser().verifyWith(key()).build().parse(authToken);
 			return true;
 		} catch (MalformedJwtException e) {
 			Log.error(getClass(), "Invalid JWT token: {}", e.getMessage());
@@ -88,10 +88,10 @@ public class ToolJWT {
 		return false;
 	}
 
-	String generateTokenFromEmail(String email) {
-		return Jwts.builder().setSubject(email).setIssuedAt(new Date())
-				.setExpiration(new Date((new Date()).getTime() + expiration * 1000))
-				.signWith(key(), SignatureAlgorithm.HS256).compact();
+	public String generateTokenFromEmail(String email) {
+		return Jwts.builder().subject(email).issuedAt(new Date())
+				.expiration(new Date((new Date()).getTime() + expiration * 1000)).signWith(key(), Jwts.SIG.HS256)
+				.compact();
 	}
 
 	private ResponseCookie generateJwtCookie(String email) {
@@ -112,7 +112,7 @@ public class ToolJWT {
 		return cookie != null ? cookie.getValue() : null;
 	}
 
-	private Key key() {
+	private SecretKey key() {
 		return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
 	}
 }
