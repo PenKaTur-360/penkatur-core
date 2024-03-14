@@ -10,7 +10,7 @@ import es.taixmiguel.penkatur.core.profiles.user.model.User;
 
 public class UserDetailsImpl implements UserDetails {
 
-	private static final long serialVersionUID = -4292300756772591259L;
+	private static final long serialVersionUID = 1L;
 
 	private Long id;
 	private String email;

@@ -11,9 +11,6 @@ public final class ToolUser {
 	public static final String SECOND_LAST_NAME = "Testing";
 	public static final String AVATAR = "/path/to/image";
 
-	public static final String PASSWORD1 = "passW0RD";
-	public static final String PASSWORD2 = "P4SSword";
-
 	private ToolUser() {
 	}
 

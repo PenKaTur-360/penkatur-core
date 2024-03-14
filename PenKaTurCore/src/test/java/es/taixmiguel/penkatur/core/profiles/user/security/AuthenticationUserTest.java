@@ -35,11 +35,11 @@ class AuthenticationUserTest {
 	@Test
 	void authenticateUser() {
 		User user = userService.createUser(ToolUser.getInstanceSimpleUser());
-		secretsService.createSecrets(user, encoder.encode(ToolUser.PASSWORD1));
+		secretsService.createSecrets(user, encoder.encode(SecurityUserTests.PASSWORD1));
 
 		try {
-			authenticationManager
-					.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), ToolUser.PASSWORD1));
+			authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(user.getEmail(), SecurityUserTests.PASSWORD1));
 			assertTrue(true);
 		} catch (Exception e) {
 			fail("The user can't be authenticate");
