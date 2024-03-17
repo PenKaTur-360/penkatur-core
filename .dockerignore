@@ -1,3 +1,9 @@
-/PenkaTurCore/.settings
-/PenkaTurCore/src/test
-/PenkaTurCore/.gitignore
+.gitignore
+**/src/test
+**/target
+
+**/.classpath
+**/.project
+**/.bbdd
+**/.logs
+**/.settings
