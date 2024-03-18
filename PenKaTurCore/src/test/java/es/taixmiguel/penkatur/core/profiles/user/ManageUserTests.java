@@ -6,12 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import es.taixmiguel.penkatur.core.PenKaTurCoreApplication;
+import es.taixmiguel.penkatur.core.profiles.user.attributes.UserGender;
 import es.taixmiguel.penkatur.core.profiles.user.exception.DuplicatedUserException;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
 import es.taixmiguel.penkatur.core.profiles.user.service.UserService;
@@ -45,7 +48,7 @@ class ManageUserTests {
 	@Test
 	void createSimpleUser2() throws DuplicatedUserException {
 		Log.trace(getClass(), "Running test createSimpleUser2()");
-		User user = new User(ToolUser.EMAIL, "-", "-");
+		User user = new User(ToolUser.EMAIL, "-", "-", UserGender.MALE, LocalDate.now());
 		user.setCompleteName(ToolUser.FIRST_NAME, ToolUser.LAST_NAME);
 		user = userService.createUser(user);
 		checkSimpleUser(user);
@@ -63,9 +66,9 @@ class ManageUserTests {
 	@Test
 	void createCompleteUser2() throws DuplicatedUserException {
 		Log.trace(getClass(), "Running test createCompleteUser2()");
-		User user = new User(ToolUser.EMAIL, "-", "-");
+		User user = new User(ToolUser.EMAIL, "-", "-", UserGender.MALE, LocalDate.now());
 		user.setAvatar(ToolUser.AVATAR);
-		user.setCompleteName(ToolUser.FIRST_NAME, ToolUser.LAST_NAME, ToolUser.SECOND_LAST_NAME);
+		user.setCompleteName(ToolUser.FIRST_NAME, ToolUser.SECOND_NAME, ToolUser.LAST_NAME, ToolUser.SECOND_LAST_NAME);
 		user = userService.createUser(user);
 		checkCompleteUser(user);
 	}
@@ -113,7 +116,7 @@ class ManageUserTests {
 		User user = userService.createUser(ToolUser.getInstanceSimpleUser());
 		checkSimpleUser(user);
 		user.setAvatar(ToolUser.AVATAR);
-		user.setCompleteName(ToolUser.FIRST_NAME, ToolUser.LAST_NAME, ToolUser.SECOND_LAST_NAME);
+		user.setCompleteName(ToolUser.FIRST_NAME, ToolUser.SECOND_NAME, ToolUser.LAST_NAME, ToolUser.SECOND_LAST_NAME);
 		checkCompleteUser(user);
 
 		User updateUser = userService.updateUser(user);
@@ -150,6 +153,7 @@ class ManageUserTests {
 	private void checkCompleteUser(User user) {
 		checkCommonUser(user);
 		assertEquals(ToolUser.AVATAR, user.getAvatar(), "The user does not have the expected avatar");
+		assertEquals(ToolUser.SECOND_NAME, user.getSecondName(), "The user does not have the expected second name");
 		assertEquals(ToolUser.SECOND_LAST_NAME, user.getSecondLastName(),
 				"The user does not have the expected second last name");
 	}
