@@ -23,11 +23,13 @@ import es.taixmiguel.penkatur.core.profiles.user.model.UserToken;
 import es.taixmiguel.penkatur.core.profiles.user.security.jwt.ToolJWT;
 import es.taixmiguel.penkatur.core.profiles.user.service.UserService;
 import es.taixmiguel.penkatur.core.profiles.user.service.UserTokenService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Authentication")
 public class AuthenticationController {
 
 	private ToolJWT jwtUtils;
