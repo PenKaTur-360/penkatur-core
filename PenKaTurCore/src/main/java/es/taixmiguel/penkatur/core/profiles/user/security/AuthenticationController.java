@@ -1,6 +1,7 @@
 package es.taixmiguel.penkatur.core.profiles.user.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,9 @@ import jakarta.validation.Valid;
 @Tag(name = "Authentication")
 public class AuthenticationController {
 
+	@Value("${penkatur.auth.signup.enabled}")
+	private boolean swSignup;;
+
 	private ToolJWT jwtUtils;
 	private PasswordEncoder encoder;
 	private UserService userService;
@@ -41,6 +45,10 @@ public class AuthenticationController {
 
 	@PostMapping("/signup")
 	public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupRequest signup) {
+		if (!swSignup)
+			return ResponseEntity.badRequest()
+					.body(new MessageResponse("Error: The user registration service is disabled."));
+
 		if (userService.findUser(signup.getEmail()).isPresent())
 			return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already taken!"));
 
