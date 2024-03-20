@@ -1,6 +1,11 @@
 {
 	"properties": [
 		{
+			"name": "penkatur.auth.signup.enabled",
+			"type": "java.lang.Boolean",
+			"description": "The attribute toggles the user signup functionality"
+		},
+		{
 			"name": "penkatur.profiles.user.security.monthsPasswordExpiration",
 			"type": "java.lang.Integer",
 			"description": "Determines the number of months after which user passwords expire"
