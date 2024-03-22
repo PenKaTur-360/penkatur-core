@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import es.taixmiguel.penkatur.core.api.MessageResponse;
 import es.taixmiguel.penkatur.core.api.profiles.user.auth.SigninRequest;
 import es.taixmiguel.penkatur.core.api.profiles.user.auth.SignupRequest;
+import es.taixmiguel.penkatur.core.profiles.user.attributes.UserStatus;
 import es.taixmiguel.penkatur.core.profiles.user.exception.UserLoggedException;
 import es.taixmiguel.penkatur.core.profiles.user.exception.UserTokenException;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
@@ -53,7 +54,9 @@ public class AuthenticationController {
 		if (userService.findUser(signup.getEmail()).isPresent())
 			return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already taken!"));
 
-		User user = userService.createUser(signup.toUser());
+		User user = signup.toUser();
+		user.setStatus(UserStatus.ACTIVE);
+		user = userService.createUser(user);
 		secretsService.createSecrets(user, encoder.encode(signup.getPassword()));
 		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 	}
