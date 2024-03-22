@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.hibernate.annotations.CreationTimestamp;
 
 import es.taixmiguel.penkatur.core.profiles.user.attributes.UserGender;
+import es.taixmiguel.penkatur.core.profiles.user.attributes.UserStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -54,6 +55,9 @@ public class User {
 	@Enumerated(EnumType.STRING)
 	private UserGender gender;
 
+	@Enumerated(EnumType.STRING)
+	private UserStatus status;
+
 	@NotNull
 	private LocalDate dateOfBirth;
 
@@ -75,6 +79,7 @@ public class User {
 	public User(@Email @NotBlank String email, @NotBlank String firstName, String secondName, @NotBlank String lastName,
 			@NotBlank String secondLastName, @NotNull UserGender gender, @NotNull LocalDate dateOfBirth) {
 		setCompleteName(firstName, secondName, lastName, secondLastName);
+		this.status = UserStatus.INACTIVE;
 		this.dateOfBirth = dateOfBirth;
 		this.gender = gender;
 		this.email = email;
@@ -126,6 +131,14 @@ public class User {
 
 	public UserGender getGender() {
 		return gender;
+	}
+
+	public void setStatus(UserStatus status) {
+		this.status = status;
+	}
+
+	public UserStatus getStatus() {
+		return status;
 	}
 
 	public LocalDate getDateOfBirth() {

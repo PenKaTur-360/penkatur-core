@@ -35,7 +35,7 @@ public class UserTokenService {
 
 	private UserToken createToken(UserTokenType type, User user, long tokenDuration) {
 		String token = UUID.randomUUID().toString();
-		Instant expiration = Instant.now().plusMillis(tokenDuration);
+		Instant expiration = Instant.now().plusMillis(tokenDuration * 1000);
 		return tokenRepo.save(new UserToken(user, type, token, expiration));
 	}
 

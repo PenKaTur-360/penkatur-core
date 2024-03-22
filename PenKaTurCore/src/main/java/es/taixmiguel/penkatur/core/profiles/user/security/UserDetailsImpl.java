@@ -6,23 +6,23 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import es.taixmiguel.penkatur.core.profiles.user.attributes.UserStatus;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
 
 public class UserDetailsImpl implements UserDetails {
 
 	private static final long serialVersionUID = 1L;
 
-	private Long id;
-	private String email;
-	private String password;
-
 	private Collection<? extends GrantedAuthority> authorities;
+	private final boolean passwordExpirated;
+	private final String password;
+	private final User user;
 
-	public UserDetailsImpl(User user, String password) {
-		this.id = user.getId();
+	public UserDetailsImpl(User user, String password, boolean passwordExpirated) {
+		this.user = user;
 		this.password = password;
-		this.email = user.getEmail();
 		this.authorities = new ArrayList<>();
+		this.passwordExpirated = passwordExpirated;
 	}
 
 	@Override
@@ -31,7 +31,7 @@ public class UserDetailsImpl implements UserDetails {
 	}
 
 	public Long getId() {
-		return id;
+		return user.getId();
 	}
 
 	@Override
@@ -41,30 +41,26 @@ public class UserDetailsImpl implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return email;
+		return user.getEmail();
 	}
 
 	@Override
 	public boolean isAccountNonExpired() {
-		// TODO Auto-generated method stub
-		return true;
+		return UserStatus.EXPIRED != user.getStatus();
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		// TODO Auto-generated method stub
-		return true;
+		return UserStatus.LOCKED != user.getStatus();
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		// TODO Auto-generated method stub
-		return true;
+		return !passwordExpirated;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		// TODO Auto-generated method stub
-		return true;
+		return UserStatus.ACTIVE == user.getStatus();
 	}
 }

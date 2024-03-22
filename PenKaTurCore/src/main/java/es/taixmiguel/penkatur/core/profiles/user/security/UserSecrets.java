@@ -66,6 +66,10 @@ class UserSecrets {
 		return passwordExpiration;
 	}
 
+	public boolean isPasswordExpirated() {
+		return passwordExpiration.isBefore(LocalDate.now());
+	}
+
 	private void setPasswordExpiration(int monthsExpiration) {
 		this.passwordExpiration = monthsExpiration <= 0 ? LocalDate.MAX : LocalDate.now().plusMonths(monthsExpiration);
 	}
