@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import es.taixmiguel.penkatur.core.PenKaTurCoreApplication;
 import es.taixmiguel.penkatur.core.profiles.user.ToolUser;
+import es.taixmiguel.penkatur.core.profiles.user.attributes.UserStatus;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
 import es.taixmiguel.penkatur.core.profiles.user.service.UserService;
 
@@ -34,7 +35,9 @@ class AuthenticationUserTest {
 
 	@Test
 	void authenticateUser() {
-		User user = userService.createUser(ToolUser.getInstanceSimpleUser());
+		User simpleUser = ToolUser.getInstanceSimpleUser();
+		simpleUser.setStatus(UserStatus.ACTIVE);
+		User user = userService.createUser(simpleUser);
 		secretsService.createSecrets(user, encoder.encode(SecurityUserTests.PASSWORD1));
 
 		try {

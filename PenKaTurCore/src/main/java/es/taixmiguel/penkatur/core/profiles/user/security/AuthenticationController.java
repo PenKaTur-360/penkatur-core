@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import es.taixmiguel.penkatur.core.api.MessageResponse;
 import es.taixmiguel.penkatur.core.api.profiles.user.auth.SigninRequest;
 import es.taixmiguel.penkatur.core.api.profiles.user.auth.SignupRequest;
+import es.taixmiguel.penkatur.core.profiles.user.attributes.UserStatus;
+import es.taixmiguel.penkatur.core.profiles.user.exception.UserLoggedException;
 import es.taixmiguel.penkatur.core.profiles.user.exception.UserTokenException;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
 import es.taixmiguel.penkatur.core.profiles.user.model.UserToken;
@@ -45,20 +47,23 @@ public class AuthenticationController {
 
 	@PostMapping("/signup")
 	public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupRequest signup) {
+		checkUserNotLogged();
 		if (!swSignup)
 			return ResponseEntity.badRequest()
 					.body(new MessageResponse("Error: The user registration service is disabled."));
-
 		if (userService.findUser(signup.getEmail()).isPresent())
 			return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already taken!"));
 
-		User user = userService.createUser(signup.toUser());
+		User user = signup.toUser();
+		user.setStatus(UserStatus.ACTIVE);
+		user = userService.createUser(user);
 		secretsService.createSecrets(user, encoder.encode(signup.getPassword()));
 		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 	}
 
 	@PostMapping("/signin")
 	public ResponseEntity<MessageResponse> authenticateUser(@Valid @RequestBody SigninRequest signin) {
+		checkUserNotLogged();
 		Authentication authentication = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken(signin.getEmail(), signin.getPassword()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -67,7 +72,7 @@ public class AuthenticationController {
 		UserToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
 		ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());
 		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString()).body(new MessageResponse("User loged"));
+				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString()).body(new MessageResponse("User logged"));
 	}
 
 	@PostMapping("/refreshtoken")
@@ -81,7 +86,7 @@ public class AuthenticationController {
 								.body(new MessageResponse("Token is refreshed successfully!"));
 					}).orElseThrow(() -> new UserTokenException("Refresh token is not in database!"));
 		}
-		return ResponseEntity.badRequest().body(new MessageResponse("Refresh Token is empty!"));
+		return ResponseEntity.badRequest().body(new MessageResponse("Refresh token is empty!"));
 	}
 
 	@PostMapping("/signout")
@@ -98,6 +103,12 @@ public class AuthenticationController {
 		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
 				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
 				.body(new MessageResponse("You've been signed out!"));
+	}
+
+	private void checkUserNotLogged() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (!"anonymousUser".equals(principal.toString()))
+			throw new UserLoggedException();
 	}
 
 	@Autowired

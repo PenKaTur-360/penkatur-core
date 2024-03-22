@@ -80,6 +80,6 @@ public class UserToken {
 	}
 
 	public boolean hasExpired() {
-		return Instant.now().isBefore(getExpiryDate());
+		return Instant.now().isAfter(getExpiryDate());
 	}
 }
