@@ -47,7 +47,7 @@ public class WebSecurityConfig {
 			.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 			.authorizeHttpRequests(auth -> auth
 					.requestMatchers("/error/**", "/h2-console/**").permitAll()
-					.requestMatchers("/api/auth/**").permitAll()
+					.requestMatchers("/api/auth/**", "/api/info").permitAll()
 					.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 					.anyRequest().authenticated()); 
 		// @formatter:on
