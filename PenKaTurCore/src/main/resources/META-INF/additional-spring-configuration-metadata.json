@@ -34,6 +34,11 @@
 			"name": "penkatur.security.jwt.secret",
 			"type": "java.lang.String",
 			"description": "Attribute indicating the secret key used for JWT encryption and decryption"
+		},
+		{
+			"name": "penkatur.security.cors.allowedOrigins",
+			"type": "java.lang.String[]",
+			"description": "The domains that are eligible to send requests to your backend applications. Separate them by commas"
 		}
 	]
 }
