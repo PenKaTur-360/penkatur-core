@@ -101,7 +101,7 @@ class SecurityUserTests {
 	private void checkSecrets(UserSecrets secrets, String password, int monthsExpiration) {
 		assertNotNull(secrets, "The secrets instance cannot be null.");
 		assertEquals(password, secrets.getPassword(), "The password does not match the expected one.");
-		assertEquals(monthsExpiration <= 0 ? LocalDate.MAX : LocalDate.now().plusMonths(monthsExpiration),
+		assertEquals(monthsExpiration <= 0 ? null : LocalDate.now().plusMonths(monthsExpiration),
 				secrets.getPasswordExpiration(), "The password duration does not match the calculated one.");
 	}
 }

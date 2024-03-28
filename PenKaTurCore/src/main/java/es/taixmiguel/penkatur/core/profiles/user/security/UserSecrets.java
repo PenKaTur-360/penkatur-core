@@ -31,10 +31,7 @@ class UserSecrets {
 	@JoinColumn(name = "ID_USER_FK", foreignKey = @ForeignKey(name = "USERS_SECRETS__USERS__FK"))
 	private User user;
 
-	@NotBlank
-	private String password;
-
-	@NotNull
+	private @NotBlank String password;
 	private LocalDate passwordExpiration;
 
 	protected UserSecrets() {
@@ -67,10 +64,10 @@ class UserSecrets {
 	}
 
 	public boolean isPasswordExpirated() {
-		return passwordExpiration.isBefore(LocalDate.now());
+		return passwordExpiration != null && passwordExpiration.isBefore(LocalDate.now());
 	}
 
 	private void setPasswordExpiration(int monthsExpiration) {
-		this.passwordExpiration = monthsExpiration <= 0 ? LocalDate.MAX : LocalDate.now().plusMonths(monthsExpiration);
+		this.passwordExpiration = monthsExpiration <= 0 ? null : LocalDate.now().plusMonths(monthsExpiration);
 	}
 }
