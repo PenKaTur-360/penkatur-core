@@ -36,7 +36,7 @@ import jakarta.validation.Valid;
 public class AuthenticationController {
 
 	@Value("${penkatur.auth.signup.enabled}")
-	private boolean swSignup;;
+	private boolean swSignup;
 
 	private ToolJWT jwtUtils;
 	private PasswordEncoder encoder;
