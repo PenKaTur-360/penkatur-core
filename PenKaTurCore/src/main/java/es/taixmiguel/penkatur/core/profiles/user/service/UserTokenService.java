@@ -1,8 +1,6 @@
 package es.taixmiguel.penkatur.core.profiles.user.service;
 
-import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,14 +27,12 @@ public class UserTokenService {
 		return tokenRepo.findByTypeAndToken(UserTokenType.REFRESH, token);
 	}
 
-	public UserToken createRefreshToken(long idUser) {
-		return createToken(UserTokenType.REFRESH, getUser(idUser), refreshTokenDurationJWT);
-	}
-
-	private UserToken createToken(UserTokenType type, User user, long tokenDuration) {
-		String token = UUID.randomUUID().toString();
-		Instant expiration = Instant.now().plusMillis(tokenDuration * 1000);
-		return tokenRepo.save(new UserToken(user, type, token, expiration));
+	public UserToken updateOrCreateRefreshToken(long idUser) {
+		User user = getUser(idUser);
+		return tokenRepo.findByUserAndType(user, UserTokenType.REFRESH)
+				.map(ut -> tokenRepo.saveAndFlush(ut.regenerateToken((long) refreshTokenDurationJWT)))
+				.orElseGet(() -> tokenRepo
+						.save(new UserToken(user, UserTokenType.REFRESH, (long) refreshTokenDurationJWT)));
 	}
 
 	public UserToken verifyExpiration(UserToken token) {
