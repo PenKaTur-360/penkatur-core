@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.taixmiguel.penkatur.core.api.MessageResponse;
+import es.taixmiguel.penkatur.core.api.profiles.user.UserBasicResponse;
 import es.taixmiguel.penkatur.core.api.profiles.user.auth.SigninRequest;
 import es.taixmiguel.penkatur.core.api.profiles.user.auth.SignupRequest;
 import es.taixmiguel.penkatur.core.profiles.user.attributes.UserStatus;
@@ -62,7 +63,7 @@ public class AuthenticationController {
 	}
 
 	@PostMapping("/signin")
-	public ResponseEntity<MessageResponse> authenticateUser(@Valid @RequestBody SigninRequest signin) {
+	public ResponseEntity<UserBasicResponse> authenticateUser(@Valid @RequestBody SigninRequest signin) {
 		checkUserNotLogged();
 		Authentication authentication = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken(signin.getEmail(), signin.getPassword()));
@@ -72,7 +73,8 @@ public class AuthenticationController {
 		UserToken refreshToken = refreshTokenService.updateOrCreateRefreshToken(userDetails.getId());
 		ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());
 		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString()).body(new MessageResponse("User logged"));
+				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
+				.body(new UserBasicResponse(userDetails.getUser()));
 	}
 
 	@PostMapping("/refreshtoken")
