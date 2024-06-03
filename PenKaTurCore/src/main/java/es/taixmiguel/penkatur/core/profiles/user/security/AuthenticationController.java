@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.taixmiguel.penkatur.core.api.MessageResponse;
+import es.taixmiguel.penkatur.core.api.profiles.user.auth.AuthResponse;
 import es.taixmiguel.penkatur.core.api.profiles.user.auth.SigninRequest;
 import es.taixmiguel.penkatur.core.api.profiles.user.auth.SignupRequest;
 import es.taixmiguel.penkatur.core.profiles.user.attributes.UserStatus;
@@ -62,7 +63,7 @@ public class AuthenticationController {
 	}
 
 	@PostMapping("/signin")
-	public ResponseEntity<MessageResponse> authenticateUser(@Valid @RequestBody SigninRequest signin) {
+	public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody SigninRequest signin) {
 		checkUserNotLogged();
 		Authentication authentication = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken(signin.getEmail(), signin.getPassword()));
@@ -72,21 +73,25 @@ public class AuthenticationController {
 		UserToken refreshToken = refreshTokenService.updateOrCreateRefreshToken(userDetails.getId());
 		ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());
 		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString()).body(new MessageResponse("User logged"));
+				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
+				.body(new AuthResponse("User logged", jwtCookie, refreshToken));
 	}
 
 	@PostMapping("/refreshtoken")
-	public ResponseEntity<MessageResponse> refreshtoken(HttpServletRequest request) {
+	public ResponseEntity<AuthResponse> refreshtoken(HttpServletRequest request) {
 		String refreshToken = jwtUtils.getJwtRefreshFromCookies(request);
 		if ((refreshToken != null) && (refreshToken.length() > 0)) {
 			return refreshTokenService.findByRefreshToken(refreshToken).map(refreshTokenService::verifyExpiration)
 					.map(UserToken::getUser).map(user -> {
 						ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(user);
+						UserToken newRefreshToken = refreshTokenService.updateOrCreateRefreshToken(user.getId());
+						ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(newRefreshToken.getToken());
 						return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-								.body(new MessageResponse("Token is refreshed successfully!"));
+								.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
+								.body(new AuthResponse("Token is refreshed successfully!", jwtCookie, newRefreshToken));
 					}).orElseThrow(() -> new UserTokenException("Refresh token is not in database!"));
 		}
-		return ResponseEntity.badRequest().body(new MessageResponse("Refresh token is empty!"));
+		return ResponseEntity.badRequest().body(new AuthResponse("Refresh token is empty!"));
 	}
 
 	@PostMapping("/signout")
