@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import es.taixmiguel.penkatur.core.profiles.user.security.UserDetailsServiceImpl;
+import es.taixmiguel.penkatur.core.profiles.user.service.UserTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AuthTokenFilter extends OncePerRequestFilter {
 
 	private UserDetailsServiceImpl userDetailsService;
+	private UserTokenService tokenService;
 	private JwtTokenUtil jwtTokenUtil;
 
 	@Override
@@ -24,8 +26,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 			String token = authorizationHeader.substring("Bearer ".length());
 			if (token != null && jwtTokenUtil.validateToken(token)) {
-				String email = jwtTokenUtil.getEmail(token);
-				UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+				tokenService.findByAccessToken(token).map(tokenService::verifyExpiration);
+				String username = jwtTokenUtil.getUsername(token);
+				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 				jwtTokenUtil.setAuthentication(userDetails, request);
 			}
 		}
@@ -36,6 +39,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	@Autowired
 	public void setUserDetailsService(UserDetailsServiceImpl userDetailsService) {
 		this.userDetailsService = userDetailsService;
+	}
+
+	@Autowired
+	protected void setTokenService(UserTokenService tokenService) {
+		this.tokenService = tokenService;
 	}
 
 	@Autowired

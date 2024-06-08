@@ -1,5 +1,7 @@
 package es.taixmiguel.penkatur.core.profiles.user.security.jwt;
 
+import java.util.Date;
+
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,9 @@ import jakarta.servlet.http.HttpServletRequest;
 @Component
 public class JwtTokenUtil {
 
+	@Value("${penkatur.security.jwt.expiration}")
+	private int expiration;
+
 	@Value("${penkatur.security.jwt.secret}")
 	private String secret;
 
@@ -41,8 +46,14 @@ public class JwtTokenUtil {
 		return false;
 	}
 
-	public String getEmail(String token) {
+	public String getUsername(String token) {
 		return Jwts.parser().verifyWith(key()).build().parseSignedClaims(token).getPayload().getSubject();
+	}
+
+	public String generateToken(String username) {
+		return Jwts.builder().subject(username).issuedAt(new Date())
+		.expiration(new Date((new Date()).getTime() + expiration * 1000)).signWith(key(), Jwts.SIG.HS256)
+		.compact();
 	}
 
 	public void setAuthentication(UserDetails userDetails, HttpServletRequest request) {

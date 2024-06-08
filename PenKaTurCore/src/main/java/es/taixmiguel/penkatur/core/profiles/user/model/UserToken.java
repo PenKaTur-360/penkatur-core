@@ -51,14 +51,22 @@ public class UserToken {
 	}
 
 	public UserToken(@NotNull User user, @NotNull UserTokenType type, @NotNull Long tokenDuration) {
-		regenerateToken(tokenDuration);
+		this(user, type, tokenDuration, null);
+	}
+
+	public UserToken(@NotNull User user, @NotNull UserTokenType type, @NotNull Long tokenDuration, String token) {
+		setToken(tokenDuration, token);
 		this.type = type;
 		this.user = user;
 	}
 
 	public UserToken regenerateToken(@NotNull Long tokenDuration) {
+		return setToken(tokenDuration, null);
+	}
+
+	public UserToken setToken(@NotNull Long tokenDuration, String token) {
+		this.token = token != null && !token.isBlank() ? token : UUID.randomUUID().toString();
 		this.expiryDate = Instant.now().plusMillis(tokenDuration * 1000);
-		this.token = UUID.randomUUID().toString();
 		return this;
 	}
 

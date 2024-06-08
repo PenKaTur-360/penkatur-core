@@ -2,8 +2,6 @@ package es.taixmiguel.penkatur.core.profiles.user.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.taixmiguel.penkatur.core.api.MessageResponse;
 import es.taixmiguel.penkatur.core.api.profiles.user.auth.AuthResponse;
+import es.taixmiguel.penkatur.core.api.profiles.user.auth.RefreshTokenRequest;
 import es.taixmiguel.penkatur.core.api.profiles.user.auth.SigninRequest;
 import es.taixmiguel.penkatur.core.api.profiles.user.auth.SignupRequest;
 import es.taixmiguel.penkatur.core.profiles.user.attributes.UserStatus;
@@ -24,11 +23,10 @@ import es.taixmiguel.penkatur.core.profiles.user.exception.UserLoggedException;
 import es.taixmiguel.penkatur.core.profiles.user.exception.UserTokenException;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
 import es.taixmiguel.penkatur.core.profiles.user.model.UserToken;
-import es.taixmiguel.penkatur.core.profiles.user.security.jwt.ToolJWT;
+import es.taixmiguel.penkatur.core.profiles.user.security.jwt.JwtTokenUtil;
 import es.taixmiguel.penkatur.core.profiles.user.service.UserService;
 import es.taixmiguel.penkatur.core.profiles.user.service.UserTokenService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -39,11 +37,11 @@ public class AuthenticationController {
 	@Value("${penkatur.auth.signup.enabled}")
 	private boolean swSignup;
 
-	private ToolJWT jwtUtils;
+	private JwtTokenUtil jwtTokenUtil;
 	private PasswordEncoder encoder;
 	private UserService userService;
 	private UserSecretsService secretsService;
-	private UserTokenService refreshTokenService;
+	private UserTokenService tokenService;
 	private AuthenticationManager authenticationManager;
 
 	@PostMapping("/signup")
@@ -69,29 +67,25 @@ public class AuthenticationController {
 				.authenticate(new UsernamePasswordAuthenticationToken(signin.email(), signin.password()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-		ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
-		UserToken refreshToken = refreshTokenService.updateOrCreateRefreshToken(userDetails.getId());
-		ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());
-		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
-				.body(new AuthResponse("User logged", jwtCookie, refreshToken));
+		return createTokens(userDetails.getId(), "User logged");
 	}
 
 	@PostMapping("/refreshtoken")
-	public ResponseEntity<AuthResponse> refreshtoken(HttpServletRequest request) {
-		String refreshToken = jwtUtils.getJwtRefreshFromCookies(request);
-		if ((refreshToken != null) && (refreshToken.length() > 0)) {
-			return refreshTokenService.findByRefreshToken(refreshToken).map(refreshTokenService::verifyExpiration)
-					.map(UserToken::getUser).map(user -> {
-						ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(user);
-						UserToken newRefreshToken = refreshTokenService.updateOrCreateRefreshToken(user.getId());
-						ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(newRefreshToken.getToken());
-						return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-								.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
-								.body(new AuthResponse("Token is refreshed successfully!", jwtCookie, newRefreshToken));
-					}).orElseThrow(() -> new UserTokenException("Refresh token is not in database!"));
-		}
+	public ResponseEntity<AuthResponse> refreshtoken(@Valid @RequestBody RefreshTokenRequest request) {
+		String refreshToken = request.refreshToken();
+		if (refreshToken != null && refreshToken.length() > 0)
+			return tokenService.findByRefreshToken(refreshToken).filter(token -> {
+				tokenService.verifyExpiration(token);
+				return true;
+			}).map(UserToken::getUser).map(user -> createTokens(user.getId(), "Token is refreshed successfully!"))
+					.orElseThrow(() -> new UserTokenException("Refresh token is not in database!"));
 		return ResponseEntity.badRequest().body(new AuthResponse("Refresh token is empty!"));
+	}
+
+	private ResponseEntity<AuthResponse> createTokens(Long userId, String msg) {
+		String refreshToken = tokenService.updateOrCreateRefreshToken(userId).getToken();
+		String token = tokenService.createAccessToken(userId, jwtTokenUtil).getToken();
+		return ResponseEntity.ok().body(new AuthResponse(msg, token, refreshToken));
 	}
 
 	@PostMapping("/signout")
@@ -99,15 +93,10 @@ public class AuthenticationController {
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (!"anonymousUser".equals(principal.toString())) {
 			Long userId = ((UserDetailsImpl) principal).getId();
-			refreshTokenService.deleteByUser(userId);
+			tokenService.deleteByUser(userId);
 		}
 
-		ResponseCookie jwtCookie = jwtUtils.getCleanJwtCookie();
-		ResponseCookie jwtRefreshCookie = jwtUtils.getCleanJwtRefreshCookie();
-
-		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
-				.body(new MessageResponse("You've been signed out!"));
+		return ResponseEntity.ok().body(new MessageResponse("You've been signed out!"));
 	}
 
 	private void checkUserNotLogged() {
@@ -117,8 +106,8 @@ public class AuthenticationController {
 	}
 
 	@Autowired
-	protected void setJwtUtils(ToolJWT jwtUtils) {
-		this.jwtUtils = jwtUtils;
+	protected void setJwtTokenUtil(JwtTokenUtil jwtTokenUtil) {
+		this.jwtTokenUtil = jwtTokenUtil;
 	}
 
 	@Autowired
@@ -137,8 +126,8 @@ public class AuthenticationController {
 	}
 
 	@Autowired
-	protected void setRefreshTokenService(UserTokenService refreshTokenService) {
-		this.refreshTokenService = refreshTokenService;
+	protected void setTokenService(UserTokenService tokenService) {
+		this.tokenService = tokenService;
 	}
 
 	@Autowired
