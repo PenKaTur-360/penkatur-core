@@ -52,13 +52,13 @@ public class AuthenticationController {
 		if (!swSignup)
 			return ResponseEntity.badRequest()
 					.body(new MessageResponse("Error: The user registration service is disabled."));
-		if (userService.findUser(signup.getEmail()).isPresent())
+		if (userService.findUser(signup.email()).isPresent())
 			return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already taken!"));
 
 		User user = signup.toUser();
 		user.setStatus(UserStatus.ACTIVE);
 		user = userService.createUser(user);
-		secretsService.createSecrets(user, encoder.encode(signup.getPassword()));
+		secretsService.createSecrets(user, encoder.encode(signup.password()));
 		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 	}
 
@@ -66,7 +66,7 @@ public class AuthenticationController {
 	public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody SigninRequest signin) {
 		checkUserNotLogged();
 		Authentication authentication = authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken(signin.getEmail(), signin.getPassword()));
+				.authenticate(new UsernamePasswordAuthenticationToken(signin.email(), signin.password()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 		ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);

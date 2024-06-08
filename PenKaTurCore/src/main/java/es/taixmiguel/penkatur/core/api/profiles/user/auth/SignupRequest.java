@@ -7,26 +7,12 @@ import es.taixmiguel.penkatur.core.profiles.user.model.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class SignupRequest {
-
-	private @Email @NotBlank String email;
-	private @NotBlank String firstName;
-	private String secondName;
-	private @NotBlank String lastName;
-	private String secondLastName;
-	private @NotBlank String password;
-	private @NotNull UserGender gender;
-	private @NotNull LocalDate dateOfBirth;
+public record SignupRequest(@Email @NotBlank String email, @NotBlank String firstName, String secondName,
+		@NotBlank String lastName, String secondLastName, @NotBlank String password, @NotNull UserGender gender,
+		@NotNull LocalDate dateOfBirth) {
 
 	public User toUser() {
-		return new User(getEmail(), getFirstName(), getSecondName(), getLastName(), getSecondLastName(), getGender(),
-				getDateOfBirth());
+		return new User(email(), firstName(), secondName(), lastName(), secondLastName(), gender(), dateOfBirth());
 	}
 }
