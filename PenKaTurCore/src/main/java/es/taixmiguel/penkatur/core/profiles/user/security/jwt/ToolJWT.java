@@ -22,6 +22,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Component
+@Deprecated
 public class ToolJWT {
 
 	@Value("${penkatur.security.jwt.cookieExpiration}")
