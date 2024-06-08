@@ -20,9 +20,7 @@ public class ApiInfoController {
 
 	@GetMapping("/info")
 	public ResponseEntity<ApiInfoResponse> showInformation() {
-		ApiInfoResponse infoResponse = new ApiInfoResponse();
-		infoResponse.setPenkaturVersion(penkaturVersion);
-		infoResponse.setSignupEnabled(signupEnabled);
+		ApiInfoResponse infoResponse = new ApiInfoResponse(penkaturVersion, signupEnabled);
 		return ResponseEntity.ok(infoResponse);
 	}
 }
