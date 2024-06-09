@@ -25,8 +25,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 		String authorizationHeader = request.getHeader("Authorization");
 		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 			String token = authorizationHeader.substring("Bearer ".length());
-			if (token != null && jwtTokenUtil.validateToken(token)) {
-				tokenService.findByAccessToken(token).map(tokenService::verifyExpiration);
+			if (token != null && tokenService.findByAccessToken(token).map(tokenService::verifyExpiration).isPresent()
+					&& jwtTokenUtil.validateToken(token)) {
 				String username = jwtTokenUtil.getUsername(token);
 				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 				jwtTokenUtil.setAuthentication(userDetails, request);

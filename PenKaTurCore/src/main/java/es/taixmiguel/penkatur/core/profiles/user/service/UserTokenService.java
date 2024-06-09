@@ -19,7 +19,7 @@ import jakarta.transaction.Transactional;
 public class UserTokenService {
 
 	@Value("${penkatur.security.jwt.expiration}")
-	private int sessionTokenDurationJWT;
+	private int accessTokenDurationJWT;
 
 	@Value("${penkatur.security.jwt.refreshExpiration}")
 	private int refreshTokenDurationJWT;
@@ -31,10 +31,13 @@ public class UserTokenService {
 		return tokenRepo.findByTypeAndToken(UserTokenType.ACCESS, token);
 	}
 
-	public UserToken createAccessToken(long idUser, JwtTokenUtil tokenUtil) {
+	public UserToken createOrUpdateAccessToken(long idUser, JwtTokenUtil tokenUtil) {
 		User user = getUser(idUser);
 		String token = tokenUtil.generateToken(user.getEmail());
-		return tokenRepo.save(new UserToken(user, UserTokenType.ACCESS, (long) sessionTokenDurationJWT, token));
+		return tokenRepo.findByUserAndType(user, UserTokenType.ACCESS)
+				.map(ut -> tokenRepo.saveAndFlush(ut.setToken((long) accessTokenDurationJWT, token)))
+				.orElseGet(() -> tokenRepo
+						.save(new UserToken(user, UserTokenType.ACCESS, (long) accessTokenDurationJWT, token)));
 	}
 
 	public Optional<UserToken> findByRefreshToken(String token) {

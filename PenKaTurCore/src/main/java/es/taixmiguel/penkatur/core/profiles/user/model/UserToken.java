@@ -22,8 +22,8 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "TOKENS", uniqueConstraints = {
-		@UniqueConstraint(name = "UK_User_Type", columnNames = { "user", "type" }),
-		@UniqueConstraint(name = "UK_Type_Token", columnNames = { "type", "token" }) })
+		@UniqueConstraint(name = "UK_User_Type", columnNames = { "ID_USER_FK", "TYPE" }),
+		@UniqueConstraint(name = "UK_Type_Token", columnNames = { "TYPE", "TOKEN" }) })
 public class UserToken {
 
 	@Id
@@ -92,5 +92,10 @@ public class UserToken {
 
 	public boolean hasExpired() {
 		return Instant.now().isAfter(getExpiryDate());
+	}
+
+	public boolean isTokenExpiringSoon() {
+		long remainingTime = expiryDate.getEpochSecond() - Instant.now().getEpochSecond();
+		return remainingTime <= 5 * 60;
 	}
 }

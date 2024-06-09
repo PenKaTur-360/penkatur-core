@@ -1,5 +1,7 @@
 package es.taixmiguel.penkatur.core.profiles.user.security;
 
+import java.util.function.Predicate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -71,20 +74,29 @@ public class AuthenticationController {
 	}
 
 	@PostMapping("/refreshtoken")
-	public ResponseEntity<AuthResponse> refreshtoken(@Valid @RequestBody RefreshTokenRequest request) {
+	public ResponseEntity<AuthResponse> refreshtoken(@RequestHeader("Authorization") String authorizationHeader,
+			@Valid @RequestBody RefreshTokenRequest request) {
+		if (authorizationHeader != null && !authorizationHeader.isBlank()) {
+			String accessToken = authorizationHeader.substring(7);
+			tokenService.findByAccessToken(accessToken).filter(Predicate.not(UserToken::isTokenExpiringSoon))
+					.ifPresent(userToken -> {
+						throw new UserTokenException("Access token is not expired");
+					});
+		}
+
 		String refreshToken = request.refreshToken();
 		if (refreshToken != null && refreshToken.length() > 0)
 			return tokenService.findByRefreshToken(refreshToken).filter(token -> {
 				tokenService.verifyExpiration(token);
 				return true;
-			}).map(UserToken::getUser).map(user -> createTokens(user.getId(), "Token is refreshed successfully!"))
-					.orElseThrow(() -> new UserTokenException("Refresh token is not in database!"));
+			}).map(UserToken::getUser).map(user -> createTokens(user.getId(), "Tokens is refreshed successfully!"))
+					.orElseThrow(() -> new UserTokenException("Refresh token is not exists!"));
 		return ResponseEntity.badRequest().body(new AuthResponse("Refresh token is empty!"));
 	}
 
 	private ResponseEntity<AuthResponse> createTokens(Long userId, String msg) {
+		String token = tokenService.createOrUpdateAccessToken(userId, jwtTokenUtil).getToken();
 		String refreshToken = tokenService.updateOrCreateRefreshToken(userId).getToken();
-		String token = tokenService.createAccessToken(userId, jwtTokenUtil).getToken();
 		return ResponseEntity.ok().body(new AuthResponse(msg, token, refreshToken));
 	}
 
