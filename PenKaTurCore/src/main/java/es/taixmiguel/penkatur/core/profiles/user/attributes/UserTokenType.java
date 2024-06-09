@@ -1,5 +1,5 @@
 package es.taixmiguel.penkatur.core.profiles.user.attributes;
 
 public enum UserTokenType {
-	REFRESH
+	ACCESS, REFRESH
 }

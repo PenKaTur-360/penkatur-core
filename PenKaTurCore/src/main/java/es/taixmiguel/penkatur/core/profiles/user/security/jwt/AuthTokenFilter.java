@@ -3,14 +3,11 @@ package es.taixmiguel.penkatur.core.profiles.user.security.jwt;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import es.taixmiguel.penkatur.core.profiles.user.security.UserDetailsServiceImpl;
-import es.taixmiguel.penkatur.core.tools.log.Log;
+import es.taixmiguel.penkatur.core.profiles.user.service.UserTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,23 +16,21 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AuthTokenFilter extends OncePerRequestFilter {
 
 	private UserDetailsServiceImpl userDetailsService;
-	private ToolJWT toolJWT;
+	private UserTokenService tokenService;
+	private JwtTokenUtil jwtTokenUtil;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		try {
-			String jwt = toolJWT.getJwtFromCookies(request);
-			if (jwt != null && toolJWT.validateJwtToken(jwt)) {
-				String email = toolJWT.getEmailFromJwtToken(jwt);
-				UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-						userDetails, null, userDetails.getAuthorities());
-				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(authentication);
+		String authorizationHeader = request.getHeader("Authorization");
+		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+			String token = authorizationHeader.substring("Bearer ".length());
+			if (token != null && tokenService.findByAccessToken(token).map(tokenService::verifyExpiration).isPresent()
+					&& jwtTokenUtil.validateToken(token)) {
+				String username = jwtTokenUtil.getUsername(token);
+				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+				jwtTokenUtil.setAuthentication(userDetails, request);
 			}
-		} catch (Exception e) {
-			Log.error(getClass(), "Cannot set user authentication: {}", e);
 		}
 
 		filterChain.doFilter(request, response);
@@ -47,7 +42,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	}
 
 	@Autowired
-	public void setToolJWT(ToolJWT toolJWT) {
-		this.toolJWT = toolJWT;
+	protected void setTokenService(UserTokenService tokenService) {
+		this.tokenService = tokenService;
+	}
+
+	@Autowired
+	public void setJwtTokenUtil(JwtTokenUtil jwtTokenUtil) {
+		this.jwtTokenUtil = jwtTokenUtil;
 	}
 }

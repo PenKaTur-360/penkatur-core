@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -32,14 +33,14 @@ public class SecurityConfig {
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
 		http
-			.csrf(csrf -> csrf.disable())
+			.csrf(CsrfConfigurer::disable)
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 			.authorizeHttpRequests(auth -> auth
-					.requestMatchers("/error/**", "/h2-console/**").permitAll()
 					.requestMatchers("/api/auth/**", "/api/info").permitAll()
 					.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-					.anyRequest().authenticated()); 
+					.requestMatchers("/error", "/error/**", "/h2-console/**").permitAll()
+					.anyRequest().authenticated());
 		// @formatter:on
 
 		http.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);

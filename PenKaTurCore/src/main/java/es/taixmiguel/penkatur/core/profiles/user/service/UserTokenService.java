@@ -12,16 +12,33 @@ import es.taixmiguel.penkatur.core.profiles.user.exception.UserTokenException;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
 import es.taixmiguel.penkatur.core.profiles.user.model.UserToken;
 import es.taixmiguel.penkatur.core.profiles.user.repository.UserTokenRepository;
+import es.taixmiguel.penkatur.core.profiles.user.security.jwt.JwtTokenUtil;
 import jakarta.transaction.Transactional;
 
 @Service
 public class UserTokenService {
 
-	@Value("${penkatur.security.jwt.cookieRefreshExpiration}")
+	@Value("${penkatur.security.jwt.expiration}")
+	private int accessTokenDurationJWT;
+
+	@Value("${penkatur.security.jwt.refreshExpiration}")
 	private int refreshTokenDurationJWT;
 
 	private UserService userService;
 	private UserTokenRepository tokenRepo;
+
+	public Optional<UserToken> findByAccessToken(String token) {
+		return tokenRepo.findByTypeAndToken(UserTokenType.ACCESS, token);
+	}
+
+	public UserToken createOrUpdateAccessToken(long idUser, JwtTokenUtil tokenUtil) {
+		User user = getUser(idUser);
+		String token = tokenUtil.generateToken(user.getEmail());
+		return tokenRepo.findByUserAndType(user, UserTokenType.ACCESS)
+				.map(ut -> tokenRepo.saveAndFlush(ut.setToken((long) accessTokenDurationJWT, token)))
+				.orElseGet(() -> tokenRepo
+						.save(new UserToken(user, UserTokenType.ACCESS, (long) accessTokenDurationJWT, token)));
+	}
 
 	public Optional<UserToken> findByRefreshToken(String token) {
 		return tokenRepo.findByTypeAndToken(UserTokenType.REFRESH, token);

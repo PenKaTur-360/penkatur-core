@@ -15,26 +15,26 @@ import es.taixmiguel.penkatur.core.profiles.user.ToolUser;
 @SpringBootTest(classes = PenKaTurCoreApplication.class)
 class JWTTest {
 
-	private ToolJWT toolJWT;
+	private JwtTokenUtil jwtTokenUtil;
 
 	@Autowired
-	public JWTTest(ToolJWT toolJWT) {
-		this.toolJWT = toolJWT;
+	public JWTTest(JwtTokenUtil jwtTokenUtil) {
+		this.jwtTokenUtil = jwtTokenUtil;
 	}
 
 	@Test
 	void checkToken() {
-		String token = toolJWT.generateTokenFromEmail(ToolUser.EMAIL);
+		String token = jwtTokenUtil.generateToken(ToolUser.EMAIL);
 		assertNotEquals(ToolUser.EMAIL, token, "The token is same that email");
-		assertEquals(ToolUser.EMAIL, toolJWT.getEmailFromJwtToken(token), "The email from token isn't same that email");
+		assertEquals(ToolUser.EMAIL, jwtTokenUtil.getUsername(token), "The email from token isn't same that email");
 	}
 
 	@Test
 	void validateToken() {
-		String token = toolJWT.generateTokenFromEmail(ToolUser.EMAIL);
+		String token = jwtTokenUtil.generateToken(ToolUser.EMAIL);
 
 		try {
-			toolJWT.validateJwtToken(token);
+			jwtTokenUtil.validateToken(token);
 			assertTrue(true);
 		} catch (Exception e) {
 			fail("Token isn't valid");
