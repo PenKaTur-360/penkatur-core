@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("/api")
@@ -22,5 +24,8 @@ public class ApiInfoController {
 	public ResponseEntity<ApiInfoResponse> showInformation() {
 		ApiInfoResponse infoResponse = new ApiInfoResponse(penkaturVersion, signupEnabled);
 		return ResponseEntity.ok(infoResponse);
+	}
+
+	public record ApiInfoResponse(@NotBlank String penkaturVersion, @NotNull boolean signupEnabled) {
 	}
 }
