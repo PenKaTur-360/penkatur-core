@@ -1,7 +1,6 @@
-package es.taixmiguel.penkatur.core.api.profiles.athlete;
+package es.taixmiguel.penkatur.core.api.profiles.athlete.controller;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,20 +21,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@Tag(name = "Athlete")
-@RequestMapping("/api/athlete")
-public class AthleteController {
+@Tag(name = "Athlete body stats")
+@RequestMapping("/api/athlete/{id}/bodyStats")
+public class AthleteBodyStatsController {
 
 	private BodyStatsService bodyStatsService;
 
-	@PostMapping("/{id}/bodyStats/add")
+	@PostMapping("/add")
 	public ResponseEntity<TimestampObjectDTO> addBodyStats(@PathVariable("id") Long athleteId,
 			@Valid @RequestBody BodyStatsDTO dto) {
 		BodyStats bodyStats = bodyStatsService.createBodyStats(athleteId, dto);
 		return ResponseEntity.ok(new TimestampObjectDTO(bodyStats));
 	}
 
-	@GetMapping("/{id}/bodyStats")
+	@GetMapping("")
 	public ResponseEntity<BodyStatsDTO[]> showBodyStats(@PathVariable("id") Long athleteId,
 			@RequestParam Optional<Instant> startDate, @RequestParam Optional<Instant> endDate) {
 		BodyStatsDTO[] bodyStats = bodyStatsService
@@ -44,16 +43,8 @@ public class AthleteController {
 		return ResponseEntity.ok(bodyStats);
 	}
 
-	@GetMapping("/{id}/status")
-	public ResponseEntity<AthleteStatusResponse> showStatus(@PathVariable("id") Long athleteId,
-			@RequestParam Instant checkDate) {
-		List<BodyStats> bodyStats = bodyStatsService.findNewsByUser(athleteId, checkDate);
-		AthleteStatusResponse response = new AthleteStatusResponse(bodyStats);
-		return ResponseEntity.ok(response);
-	}
-
 	@Autowired
-	protected void setTokenService(BodyStatsService service) {
+	protected void setBodyStatsService(BodyStatsService service) {
 		this.bodyStatsService = service;
 	}
 }
