@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@Tag(name = "Athlete body stats")
+@Tag(name = "Athlete")
 @RequestMapping("/api/athlete/{id}/bodyStats")
 public class AthleteBodyStatsController {
 
