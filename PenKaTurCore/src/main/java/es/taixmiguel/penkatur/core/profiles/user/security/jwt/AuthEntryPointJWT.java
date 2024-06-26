@@ -22,7 +22,7 @@ public class AuthEntryPointJWT implements AuthenticationEntryPoint {
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
-		Log.error(getClass(), "Unauthorized error: {}", authException.getMessage());
+		Log.error(getClass(), "Unauthorized error: {} ({})", authException.getMessage(), request.getServletPath());
 
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -30,8 +30,7 @@ public class AuthEntryPointJWT implements AuthenticationEntryPoint {
 		Map<String, Object> body = new HashMap<>();
 		body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
 		body.put("message", authException.getMessage());
-		body.put("path", request.getServletPath());
-		body.put("error", "Unauthorized");
+		body.put("errorCode", request.getServletPath());
 
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(response.getOutputStream(), body);

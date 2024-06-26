@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 
 import es.taixmiguel.penkatur.core.profiles.user.attributes.UserTokenType;
 import es.taixmiguel.penkatur.core.profiles.user.exception.UserNotFoundException;
-import es.taixmiguel.penkatur.core.profiles.user.exception.UserTokenException;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
 import es.taixmiguel.penkatur.core.profiles.user.model.UserToken;
 import es.taixmiguel.penkatur.core.profiles.user.repository.UserTokenRepository;
 import es.taixmiguel.penkatur.core.profiles.user.security.jwt.JwtTokenUtil;
+import es.taixmiguel.penkatur.core.tools.log.Log;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -55,7 +55,8 @@ public class UserTokenService {
 	public UserToken verifyExpiration(UserToken token) {
 		if (token.hasExpired()) {
 			tokenRepo.delete(token);
-			throw new UserTokenException("Token was expired");
+			Log.debug(getClass(), "One token was deleted by expired");
+			return null;
 		}
 		return token;
 	}
