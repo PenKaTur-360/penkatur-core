@@ -4,6 +4,7 @@ import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +30,7 @@ import es.taixmiguel.penkatur.core.profiles.user.model.UserToken;
 import es.taixmiguel.penkatur.core.profiles.user.security.jwt.JwtTokenUtil;
 import es.taixmiguel.penkatur.core.profiles.user.service.UserService;
 import es.taixmiguel.penkatur.core.profiles.user.service.UserTokenService;
+import es.taixmiguel.penkatur.core.tools.log.Log;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -80,7 +82,10 @@ public class AuthenticationController {
 			String accessToken = authorizationHeader.substring(7);
 			tokenService.findByAccessToken(accessToken).filter(Predicate.not(UserToken::isTokenExpiringSoon))
 					.ifPresent(userToken -> {
-						throw new UserTokenException("Access token is not expired");
+						Log.info(getClass(), "A user try refresh his access token");
+						throw new UserTokenException(HttpStatus.CONFLICT,
+								"Conflict: Token renewal is not allowed at this time as it was recently renewed",
+								"TOKEN_NOT_EXPIRED");
 					});
 		}
 
@@ -90,7 +95,8 @@ public class AuthenticationController {
 				tokenService.verifyExpiration(token);
 				return true;
 			}).map(UserToken::getUser).map(user -> createTokens(user.getId(), "Tokens is refreshed successfully!"))
-					.orElseThrow(() -> new UserTokenException("Refresh token is not exists!"));
+					.orElseThrow(() -> new UserTokenException(HttpStatus.UNAUTHORIZED, "Refresh token is invalid!",
+							"INVALID_REFRESH_TOKEN"));
 		return ResponseEntity.badRequest().body(new AuthResponse("Refresh token is empty!"));
 	}
 

@@ -1,14 +1,14 @@
 package es.taixmiguel.penkatur.core.profiles.user.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class UserNotFoundException extends RuntimeException {
+import es.taixmiguel.penkatur.core.api.exception.APIException;
 
-	private static final long serialVersionUID = 1L;
+public class UserNotFoundException extends APIException {
+
+	private static final long serialVersionUID = -6299212259192109572L;
 
 	public UserNotFoundException(long idUser) {
-		super(String.format("the user with id %d not exists", idUser));
+		super(HttpStatus.NOT_FOUND, String.format("The user with id %d not exists", idUser), "USER_NOT_EXISTS");
 	}
 }
