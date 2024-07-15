@@ -1,7 +1,7 @@
 package es.taixmiguel.penkatur.core.profiles.athlete.service;
 
-import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -38,11 +38,11 @@ public class BodyStatsService extends AbstractPenkaturService {
 		}
 	}
 
-	public List<BodyStats> findNewsByUser(@NotNull long userId, @NotNull Instant instant) {
+	public List<BodyStats> findNewsByUser(@NotNull long userId, @NotNull ZonedDateTime instant) {
 		return findNewsByUser(findUser(userId), instant);
 	}
 
-	public List<BodyStats> findNewsByUser(@NotNull User user, @NotNull Instant instant) {
+	public List<BodyStats> findNewsByUser(@NotNull User user, @NotNull ZonedDateTime instant) {
 		try {
 			return repo.findByUserAndTimestampAfter(user, instant);
 		} catch (Exception e) {
@@ -51,11 +51,13 @@ public class BodyStatsService extends AbstractPenkaturService {
 		}
 	}
 
-	public List<BodyStats> findByUser(@NotNull long userId, @NotNull Instant startDate, @NotNull Instant endDate) {
+	public List<BodyStats> findByUser(@NotNull long userId, @NotNull ZonedDateTime startDate,
+			@NotNull ZonedDateTime endDate) {
 		return findByUser(findUser(userId), startDate, endDate);
 	}
 
-	public List<BodyStats> findByUser(@NotNull User user, @NotNull Instant startTime, @NotNull Instant endTime) {
+	public List<BodyStats> findByUser(@NotNull User user, @NotNull ZonedDateTime startTime,
+			@NotNull ZonedDateTime endTime) {
 		if (startTime.isAfter(endTime))
 			throw new IllegalArgumentException("Start date must be before end date");
 

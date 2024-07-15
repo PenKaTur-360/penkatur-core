@@ -101,9 +101,9 @@ public class AuthenticationController {
 	}
 
 	private ResponseEntity<AuthResponse> createTokens(Long userId, String msg) {
-		String token = tokenService.createOrUpdateAccessToken(userId, jwtTokenUtil).getToken();
-		String refreshToken = tokenService.updateOrCreateRefreshToken(userId).getToken();
-		return ResponseEntity.ok().body(new AuthResponse(userId, msg, token, refreshToken));
+		UserToken accessToken = tokenService.createOrUpdateAccessToken(userId, jwtTokenUtil);
+		UserToken refreshToken = tokenService.updateOrCreateRefreshToken(userId);
+		return ResponseEntity.ok().body(new AuthResponse(userId, msg, accessToken, refreshToken));
 	}
 
 	@PostMapping("/signout")

@@ -1,6 +1,6 @@
 package es.taixmiguel.penkatur.core.profiles.athlete.model;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
@@ -55,19 +55,19 @@ public class BodyStats implements ITimestampObject {
 	private double boneMass;
 
 	@NotNull
-	private Instant registerTime;
+	private ZonedDateTime registerTime;
 
 	@NotNull
-	private Instant timestamp;
+	private ZonedDateTime timestamp;
 
 	protected BodyStats() {
 	}
 
 	public BodyStats(@NotNull User user, @NotNull double weight) {
-		this(user, weight, Instant.now());
+		this(user, weight, ZonedDateTime.now());
 	}
 
-	public BodyStats(@NotNull User user, @NotNull double weight, @NotNull Instant registerTime) {
+	public BodyStats(@NotNull User user, @NotNull double weight, @NotNull ZonedDateTime registerTime) {
 		this.registerTime = registerTime;
 		this.weight = weight;
 		this.user = user;
@@ -146,12 +146,12 @@ public class BodyStats implements ITimestampObject {
 		this.boneMass = boneMass;
 	}
 
-	public Instant getRegisterTime() {
+	public ZonedDateTime getRegisterTime() {
 		return registerTime;
 	}
 
 	@Override
-	public Instant getTimestamp() {
+	public ZonedDateTime getTimestamp() {
 		return timestamp;
 	}
 
@@ -173,11 +173,11 @@ public class BodyStats implements ITimestampObject {
 
 	@PrePersist
 	protected void onCreate() {
-		timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		timestamp = ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 	}
 
 	@PreUpdate
 	protected void onUpdate() {
-		timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		timestamp = ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 	}
 }

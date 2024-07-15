@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -53,7 +54,8 @@ class BodyStatsTest {
 	void deleteUsers() {
 		Log.trace(getClass(), "Running users cleanup");
 		Arrays.asList(user1, user2).stream().forEach(u -> {
-			service.findByUser(u, Instant.MIN, Instant.MAX).forEach(service::deleteBodyStats);
+			service.findByUser(u, ZonedDateTime.ofInstant(Instant.MIN, ZoneId.systemDefault()),
+					ZonedDateTime.ofInstant(Instant.MAX, ZoneId.systemDefault())).forEach(service::deleteBodyStats);
 			userService.deleteUser(u);
 		});
 	}
@@ -89,7 +91,9 @@ class BodyStatsTest {
 		BodyStatsDTO dto = ToolBodyStats.getInstanceCompleteStats();
 		saveAndCheck(user1, dto);
 
-		Optional<BodyStats> bodyStats = service.findNewsByUser(user1, Instant.MIN).stream().findFirst();
+		Optional<BodyStats> bodyStats = service
+				.findNewsByUser(user1, ZonedDateTime.ofInstant(Instant.MIN, ZoneId.systemDefault())).stream()
+				.findFirst();
 		assertNotNull(bodyStats.orElse(null), "The body stats don't was created");
 		checkStats(user1, dto, bodyStats.get());
 		bodyStats.ifPresent(service::deleteBodyStats);
@@ -97,12 +101,12 @@ class BodyStatsTest {
 
 	@Test
 	void checkSimpleStats() {
-		Instant start = Instant.MIN;
+		ZonedDateTime start = ZonedDateTime.ofInstant(Instant.MIN, ZoneId.systemDefault());
 		Log.trace(getClass(), "Running test createSimpleStats()");
 		BodyStatsDTO stats = ToolBodyStats.getInstanceSimpleStats();
 		BodyStats bodyStats = service.createBodyStats(user1, stats);
 		assertNotNull(bodyStats, "The body stats don't was created");
-		Instant end = Instant.now();
+		ZonedDateTime end = ZonedDateTime.now();
 
 		List<BodyStats> lStatsUser = service.findByUser(user1, start, end);
 		assertEquals(1, lStatsUser.size(), "The body stats don't was retorned");
@@ -111,7 +115,7 @@ class BodyStatsTest {
 		assertEquals(1, lStatsNew.size(), "The body stats don't was retorned");
 
 		BodyStats bodyStats2 = service.createBodyStats(user1, stats);
-		end = Instant.now();
+		end = ZonedDateTime.now();
 		lStatsUser = service.findByUser(user1, start, end);
 		assertEquals(2, lStatsUser.size(), "The body stats don't was retorned");
 
@@ -153,9 +157,7 @@ class BodyStatsTest {
 		Arrays.stream(bodyStats).forEach(stats -> service.deleteBodyStats(stats));
 	}
 
-	private String formatDateTime(Instant time) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
-				.withZone(ZoneId.systemDefault());
-		return formatter.format(time);
+	private String formatDateTime(ZonedDateTime time) {
+		return time.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 	}
 }

@@ -1,6 +1,8 @@
 package es.taixmiguel.penkatur.core.api.profiles.athlete.controller;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +38,11 @@ public class AthleteBodyStatsController {
 
 	@GetMapping("")
 	public ResponseEntity<BodyStatsDTO[]> showBodyStats(@PathVariable("id") Long athleteId,
-			@RequestParam Optional<Instant> startDate, @RequestParam Optional<Instant> endDate) {
+			@RequestParam Optional<ZonedDateTime> startDate, @RequestParam Optional<ZonedDateTime> endDate) {
 		BodyStatsDTO[] bodyStats = bodyStatsService
-				.findByUser(athleteId, startDate.orElse(Instant.MIN), endDate.orElse(Instant.MAX)).stream()
-				.map(BodyStatsDTO::new).toArray(BodyStatsDTO[]::new);
+				.findByUser(athleteId, startDate.orElse(ZonedDateTime.ofInstant(Instant.MIN, ZoneId.systemDefault())),
+						endDate.orElse(ZonedDateTime.ofInstant(Instant.MAX, ZoneId.systemDefault())))
+				.stream().map(BodyStatsDTO::new).toArray(BodyStatsDTO[]::new);
 		return ResponseEntity.ok(bodyStats);
 	}
 
