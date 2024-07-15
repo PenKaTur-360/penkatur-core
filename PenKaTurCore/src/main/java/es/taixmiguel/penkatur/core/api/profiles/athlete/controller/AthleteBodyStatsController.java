@@ -1,7 +1,5 @@
 package es.taixmiguel.penkatur.core.api.profiles.athlete.controller;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
@@ -19,6 +17,7 @@ import es.taixmiguel.penkatur.core.api.TimestampObjectDTO;
 import es.taixmiguel.penkatur.core.api.profiles.athlete.dto.BodyStatsDTO;
 import es.taixmiguel.penkatur.core.profiles.athlete.model.BodyStats;
 import es.taixmiguel.penkatur.core.profiles.athlete.service.BodyStatsService;
+import es.taixmiguel.penkatur.core.tools.DateTimeUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -40,8 +39,8 @@ public class AthleteBodyStatsController {
 	public ResponseEntity<BodyStatsDTO[]> showBodyStats(@PathVariable("id") Long athleteId,
 			@RequestParam Optional<ZonedDateTime> startDate, @RequestParam Optional<ZonedDateTime> endDate) {
 		BodyStatsDTO[] bodyStats = bodyStatsService
-				.findByUser(athleteId, startDate.orElse(ZonedDateTime.ofInstant(Instant.MIN, ZoneId.systemDefault())),
-						endDate.orElse(ZonedDateTime.ofInstant(Instant.MAX, ZoneId.systemDefault())))
+				.findByUser(athleteId, startDate.orElse(DateTimeUtils.getMinimumZonedDateTime()),
+						endDate.orElse(DateTimeUtils.getMaximumZonedDateTime()))
 				.stream().map(BodyStatsDTO::new).toArray(BodyStatsDTO[]::new);
 		return ResponseEntity.ok(bodyStats);
 	}

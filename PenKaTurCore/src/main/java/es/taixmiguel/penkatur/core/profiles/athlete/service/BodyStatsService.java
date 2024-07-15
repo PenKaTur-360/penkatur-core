@@ -46,7 +46,7 @@ public class BodyStatsService extends AbstractPenkaturService {
 		try {
 			return repo.findByUserAndTimestampAfter(user, instant);
 		} catch (Exception e) {
-			Log.error(getClass(), "Error in findNewsByUser(User, Instant)", e);
+			Log.error(getClass(), "Error in findNewsByUser(User, ZonedDateTime)", e);
 			throw e;
 		}
 	}

@@ -3,8 +3,6 @@ package es.taixmiguel.penkatur.core.profiles.athlete;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -24,6 +22,7 @@ import es.taixmiguel.penkatur.core.profiles.athlete.service.BodyStatsService;
 import es.taixmiguel.penkatur.core.profiles.user.ToolUser;
 import es.taixmiguel.penkatur.core.profiles.user.model.User;
 import es.taixmiguel.penkatur.core.profiles.user.service.UserService;
+import es.taixmiguel.penkatur.core.tools.DateTimeUtils;
 import es.taixmiguel.penkatur.core.tools.log.Log;
 
 @SpringBootTest(classes = PenKaTurCoreApplication.class)
@@ -54,8 +53,8 @@ class BodyStatsTest {
 	void deleteUsers() {
 		Log.trace(getClass(), "Running users cleanup");
 		Arrays.asList(user1, user2).stream().forEach(u -> {
-			service.findByUser(u, ZonedDateTime.ofInstant(Instant.MIN, ZoneId.systemDefault()),
-					ZonedDateTime.ofInstant(Instant.MAX, ZoneId.systemDefault())).forEach(service::deleteBodyStats);
+			service.findByUser(u, DateTimeUtils.getMinimumZonedDateTime(), DateTimeUtils.getMaximumZonedDateTime())
+					.forEach(service::deleteBodyStats);
 			userService.deleteUser(u);
 		});
 	}
@@ -91,8 +90,7 @@ class BodyStatsTest {
 		BodyStatsDTO dto = ToolBodyStats.getInstanceCompleteStats();
 		saveAndCheck(user1, dto);
 
-		Optional<BodyStats> bodyStats = service
-				.findNewsByUser(user1, ZonedDateTime.ofInstant(Instant.MIN, ZoneId.systemDefault())).stream()
+		Optional<BodyStats> bodyStats = service.findNewsByUser(user1, DateTimeUtils.getMinimumZonedDateTime()).stream()
 				.findFirst();
 		assertNotNull(bodyStats.orElse(null), "The body stats don't was created");
 		checkStats(user1, dto, bodyStats.get());
@@ -101,7 +99,7 @@ class BodyStatsTest {
 
 	@Test
 	void checkSimpleStats() {
-		ZonedDateTime start = ZonedDateTime.ofInstant(Instant.MIN, ZoneId.systemDefault());
+		ZonedDateTime start = DateTimeUtils.getMinimumZonedDateTime();
 		Log.trace(getClass(), "Running test createSimpleStats()");
 		BodyStatsDTO stats = ToolBodyStats.getInstanceSimpleStats();
 		BodyStats bodyStats = service.createBodyStats(user1, stats);
@@ -158,6 +156,6 @@ class BodyStatsTest {
 	}
 
 	private String formatDateTime(ZonedDateTime time) {
-		return time.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+		return time.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss Z"));
 	}
 }
