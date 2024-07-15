@@ -1,14 +1,14 @@
 package es.taixmiguel.penkatur.core.profiles.user.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.FORBIDDEN)
-public class UserTokenException extends RuntimeException {
+import es.taixmiguel.penkatur.core.api.exception.APIException;
 
-	private static final long serialVersionUID = 1L;
+public class UserTokenException extends APIException {
 
-	public UserTokenException(String message) {
-		super(message);
+	private static final long serialVersionUID = 6895731091394968638L;
+
+	public UserTokenException(HttpStatus status, String message, String errorCode) {
+		super(status, message, errorCode);
 	}
 }
