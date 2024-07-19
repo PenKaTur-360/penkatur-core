@@ -1,6 +1,6 @@
 package es.taixmiguel.penkatur.core.profiles.user.model;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import es.taixmiguel.penkatur.core.profiles.user.attributes.UserTokenType;
@@ -45,7 +45,7 @@ public class UserToken {
 	private String token;
 
 	@NotNull
-	private Instant expiryDate;
+	private ZonedDateTime expiryDate;
 
 	protected UserToken() {
 	}
@@ -66,7 +66,7 @@ public class UserToken {
 
 	public UserToken setToken(@NotNull Long tokenDuration, String token) {
 		this.token = token != null && !token.isBlank() ? token : UUID.randomUUID().toString();
-		this.expiryDate = Instant.now().plusMillis(tokenDuration * 1000);
+		this.expiryDate = ZonedDateTime.now().plusSeconds(tokenDuration);
 		return this;
 	}
 
@@ -86,16 +86,15 @@ public class UserToken {
 		return token;
 	}
 
-	public Instant getExpiryDate() {
+	public ZonedDateTime getExpiryDate() {
 		return expiryDate;
 	}
 
 	public boolean hasExpired() {
-		return Instant.now().isAfter(getExpiryDate());
+		return ZonedDateTime.now().isAfter(getExpiryDate());
 	}
 
 	public boolean isTokenExpiringSoon() {
-		long remainingTime = expiryDate.getEpochSecond() - Instant.now().getEpochSecond();
-		return remainingTime <= 5 * 60;
+		return ZonedDateTime.now().plusMinutes(5).isAfter(getExpiryDate());
 	}
 }

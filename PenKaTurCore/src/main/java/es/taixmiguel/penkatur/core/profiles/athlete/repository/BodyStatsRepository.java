@@ -1,6 +1,6 @@
 package es.taixmiguel.penkatur.core.profiles.athlete.repository;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +12,7 @@ import es.taixmiguel.penkatur.core.profiles.user.model.User;
 @Repository
 public interface BodyStatsRepository extends JpaRepository<BodyStats, Long> {
 
-	List<BodyStats> findByUserAndTimestampAfter(User user, Instant instant);
+	List<BodyStats> findByUserAndTimestampAfter(User user, ZonedDateTime instant);
 
-	List<BodyStats> findAllByUserAndRegisterTimeBetween(User user, Instant startTime, Instant endTime);
+	List<BodyStats> findAllByUserAndRegisterTimeBetween(User user, ZonedDateTime startTime, ZonedDateTime endTime);
 }

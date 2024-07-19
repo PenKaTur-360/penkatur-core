@@ -1,6 +1,6 @@
 package es.taixmiguel.penkatur.core.api.profiles.athlete.controller;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -25,12 +25,12 @@ public class AthleteController {
 
 	@GetMapping("/{id}/status")
 	public ResponseEntity<AthleteStatusResponse> showStatus(@PathVariable("id") Long athleteId,
-			@RequestParam Instant checkDate) {
+			@RequestParam ZonedDateTime checkDate) {
 		AthleteStatusResponse response = new AthleteStatusResponse(bodyStats(athleteId, checkDate));
 		return ResponseEntity.ok(response);
 	}
 
-	private BodyStatsDTO[] bodyStats(Long athleteId, Instant checkDate) {
+	private BodyStatsDTO[] bodyStats(Long athleteId, ZonedDateTime checkDate) {
 		BodyStatsService service = applicationContext.getBean(BodyStatsService.class);
 		return service.findNewsByUser(athleteId, checkDate).stream().map(BodyStatsDTO::new)
 				.toArray(BodyStatsDTO[]::new);
