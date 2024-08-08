@@ -22,11 +22,13 @@ public class UserAccessInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
 		Optional<Long> userId = getUserId(request);
-		Optional<Long> authenticatedUserId = getUserIdAuthenticated();
+		if (userId.isPresent()) {
+			Optional<Long> authenticatedUserId = getUserIdAuthenticated();
 
-		if (!canAccess(authenticatedUserId, userId)) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
-			return false;
+			if (!canAccess(authenticatedUserId, userId)) {
+				response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+				return false;
+			}
 		}
 
 		return true;
