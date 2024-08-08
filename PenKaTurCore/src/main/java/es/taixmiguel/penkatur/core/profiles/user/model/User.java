@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.util.StringUtils;
 
+import es.taixmiguel.penkatur.core.profiles.user.KUser;
 import es.taixmiguel.penkatur.core.profiles.user.attributes.UserGender;
 import es.taixmiguel.penkatur.core.profiles.user.attributes.UserStatus;
 import jakarta.persistence.Column;
@@ -158,7 +159,7 @@ public class User {
 	}
 
 	public String getAvatar() {
-		return StringUtils.hasText(avatar) ? avatar : "/images/defaultAvatar.jpg";
+		return StringUtils.hasText(avatar) ? avatar : KUser.Attributes.DEFAULT_AVATAR;
 	}
 
 	public Instant getCreationDate() {
