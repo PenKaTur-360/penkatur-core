@@ -1,10 +1,12 @@
 package es.taixmiguel.penkatur.core.profiles.user.model;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.Objects;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.util.StringUtils;
 
 import es.taixmiguel.penkatur.core.profiles.user.attributes.UserGender;
 import es.taixmiguel.penkatur.core.profiles.user.attributes.UserStatus;
@@ -55,6 +57,7 @@ public class User {
 	@Enumerated(EnumType.STRING)
 	private UserGender gender;
 
+	@NotNull
 	@Enumerated(EnumType.STRING)
 	private UserStatus status;
 
@@ -66,7 +69,12 @@ public class User {
 	@CreationTimestamp
 	@Column(updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date creationDate;
+	private Instant creationTime;
+
+	@UpdateTimestamp
+	@Column(updatable = true)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Instant lastModifiedTime;
 
 	protected User() {
 	}
@@ -150,12 +158,15 @@ public class User {
 	}
 
 	public String getAvatar() {
-		// TODO: if is null or empty, get default avatar
-		return avatar;
+		return StringUtils.hasText(avatar) ? avatar : "/images/defaultAvatar.jpg";
 	}
 
-	public Date getCreationDate() {
-		return creationDate;
+	public Instant getCreationDate() {
+		return creationTime;
+	}
+
+	public Instant getLastModifiedDate() {
+		return lastModifiedTime;
 	}
 
 	@Override
@@ -167,9 +178,7 @@ public class User {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
+		if (obj == null || getClass() != obj.getClass())
 			return false;
 		User aux = (User) obj;
 		return Objects.equals(id, aux.id) && Objects.equals(email, aux.email);
