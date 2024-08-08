@@ -37,6 +37,7 @@ public class SecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 			.authorizeHttpRequests(auth -> auth
+					.requestMatchers("/favicon.ico").permitAll()
 					.requestMatchers("/api/auth/**", "/api/info").permitAll()
 					.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 					.requestMatchers("/error", "/error/**", "/h2-console/**").permitAll()
