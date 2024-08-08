@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class UserAccessInterceptor implements HandlerInterceptor {
 
-	private static final Pattern USER_ID_PATTERN = Pattern.compile("^\\/api\\/(athlete)\\/(\\d+)");
+	private static final Pattern USER_ID_PATTERN = Pattern.compile("^\\/api\\/(athlete|user)\\/(\\d+)");
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

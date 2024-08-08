@@ -11,4 +11,8 @@ public class UserNotFoundException extends APIException {
 	public UserNotFoundException(long idUser) {
 		super(HttpStatus.NOT_FOUND, String.format("The user with id %d not exists", idUser), "USER_NOT_EXISTS");
 	}
+
+	public UserNotFoundException() {
+		super(HttpStatus.NOT_FOUND, "The user not exists", "USER_NOT_EXISTS");
+	}
 }

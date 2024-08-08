@@ -2,7 +2,6 @@ package es.taixmiguel.penkatur.core.profiles.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -146,7 +145,7 @@ class ManageUserTests {
 
 	private void checkSimpleUser(User user) {
 		checkCommonUser(user);
-		assertNull(user.getAvatar(), "The user does not have the expected avatar");
+		assertEquals(KUser.Attributes.DEFAULT_AVATAR, user.getAvatar(), "The user does not have the expected avatar");
 		assertEquals("", user.getSecondLastName(), "The user does not have the expected second last name");
 	}
 
